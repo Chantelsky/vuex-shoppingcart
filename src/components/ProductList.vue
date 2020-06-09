@@ -7,15 +7,16 @@
     />
     <ul v-else>
       <li v-for="product in products" v-bind:key="product.id">
-        {{ product.title }} - {{ product.price }}
+        {{ product.title }} - {{ product.price }} - {{ product.inventory }}
+        <button @click="addProductToCart(product)">
+          Add to Cart
+        </button>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import store from '@/store/index';
-
 export default {
   data() {
     return {
@@ -24,13 +25,20 @@ export default {
   },
   computed: {
     products() {
-      return store.getters.availableProducts;
+      return this.$store.getters.availableProducts;
+    },
+  },
+
+  methods: {
+    /* eslint-disable */
+    addProductToCart(product) {
+      this.$store.dispatch('addProductToCart');
     },
   },
 
   created() {
     this.loading = true;
-    store.dispatch('fetchProducts').then(() => (this.loading = false));
+    this.$store.dispatch('fetchProducts').then(() => (this.loading = false));
   },
 };
 </script>
