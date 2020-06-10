@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 
 export default {
   data() {
@@ -42,15 +42,15 @@ export default {
   },
 
   methods: {
-    /* eslint-disable */
-    addProductToCart(product) {
-      this.$store.dispatch('addProductToCart', product);
-    },
+    ...mapActions({
+      fetchProducts: 'fetchProducts',
+      addProductToCart: 'addProductToCart',
+    }),
   },
 
   created() {
     this.loading = true;
-    this.$store.dispatch('fetchProducts').then(() => (this.loading = false));
+    this.fetchProducts().then(() => (this.loading = false));
   },
 };
 </script>
