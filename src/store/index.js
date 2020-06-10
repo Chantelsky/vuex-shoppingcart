@@ -10,6 +10,7 @@ export default new Vuex.Store({
     products: [],
     //id, quantity
     cart: [],
+    checkoutStatus: null,
   },
   getters: {
     //accesses our state
@@ -35,6 +36,11 @@ export default new Vuex.Store({
         0
       );
     },
+    productIsInStock() {
+      return (product) => {
+        return product.inventory > 0;
+      };
+    },
   },
   actions: {
     //updates the Vuex state
@@ -47,22 +53,32 @@ export default new Vuex.Store({
         });
       });
     },
-    addProductToCart(context, product) {
-      if (product.inventory > 0) {
+    addProductToCart({ state, getters, commit }, product) {
+      if (getters.productIsInStock(product)) {
         //find cart item
-        const cartItem = context.state.cart.find(
-          (item) => item.id === product.id
-        );
+        const cartItem = state.cart.find((item) => item.id === product.id);
         if (!cartItem) {
           //product to cart
-          context.commit('pushProductToCart', product.id);
+          commit('pushProductToCart', product.id);
         } else {
           //increment
-          context.commit('incrementItemQuantity', cartItem);
+          commit('incrementItemQuantity', cartItem);
         }
         //decrement
-        context.commit('decrementProductInventory', product);
+        commit('decrementProductInventory', product);
       }
+    },
+    checkout({ state, commit }) {
+      shop.buyProducts(
+        state.cart,
+        () => {
+          commit('emptyCart');
+          commit('setCheckoutStatus', 'success');
+        },
+        () => {
+          commit('setCheckoutStatus', 'fail');
+        }
+      );
     },
   },
   mutations: {
@@ -81,6 +97,12 @@ export default new Vuex.Store({
     },
     decrementProductInventory(state, product) {
       product.inventory--;
+    },
+    setCheckoutStatus(state, status) {
+      state.checkoutStatus = status;
+    },
+    emptyCart(state) {
+      state.cart = [];
     },
   },
 });

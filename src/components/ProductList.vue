@@ -9,7 +9,10 @@
       <li v-for="product in products" v-bind:key="product.id">
         {{ product.title }} - {{ product.price | currency }} -
         {{ product.inventory }}
-        <button @click="addProductToCart(product)">
+        <button
+          :disabled="!productIsInStock(product)"
+          @click="addProductToCart(product)"
+        >
           Add to Cart
         </button>
       </li>
@@ -18,16 +21,24 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex';
+
 export default {
   data() {
     return {
       loading: false,
+      //productIndex: 1,
     };
   },
+
   computed: {
-    products() {
-      return this.$store.getters.availableProducts;
-    },
+    ...mapState({
+      products: (state) => state.products,
+    }),
+
+    ...mapGetters({
+      productIsInStock: 'productIsInStock',
+    }),
   },
 
   methods: {
