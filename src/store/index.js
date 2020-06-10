@@ -14,7 +14,7 @@ export default new Vuex.Store({
   getters: {
     //accesses our state
     availableProducts(state) {
-      //passes the state as first parameter and then all existing getters as the 2nd parametere.
+      //passes the state as first parameter and then all existing getters as the 2nd parameter.
       return state.products.filter((product) => product.inventory > 0);
     },
     cartProducts(state) {
@@ -28,6 +28,12 @@ export default new Vuex.Store({
           quantity: cartItem.quantity,
         };
       });
+    },
+    cartTotal(state, getters) {
+      return getters.cartProducts.reduce(
+        (total, product) => total + product.price * product.quantity,
+        0
+      );
     },
   },
   actions: {
@@ -54,7 +60,8 @@ export default new Vuex.Store({
           //increment
           context.commit('incrementItemQuantity', cartItem);
         }
-        context.commit('decrememntProductInventory', product);
+        //decrement
+        context.commit('decrementProductInventory', product);
       }
     },
   },
@@ -69,11 +76,11 @@ export default new Vuex.Store({
         quantity: 1,
       });
     },
-    incrementItemQuantity(cartItem) {
+    incrementItemQuantity(state, cartItem) {
       cartItem.quantity++;
     },
-    decrememntItemQuantity(cartItem) {
-      cartItem.quantity--;
+    decrementProductInventory(state, product) {
+      product.inventory--;
     },
   },
 });
